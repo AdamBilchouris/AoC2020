@@ -1,14 +1,11 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
-#include <string>
-#include <sstream>
-#include <regex>
-#include <utility>
-#include <set>
-#include <tuple>
+#include <algorithm>
 
-std::vector<std::pair<std::string, int>> ReadInput();
+typedef std::size_t Index; 
+
+std::vector<int> ReadInput();
 void Part1();
 void Part2();
 
@@ -19,35 +16,77 @@ int main()
     return 0;
 }
 
-std::vector<std::pair<std::string, int>> ReadInput()
+std::vector<int> ReadInput()
 {
     std::ifstream file("data.txt");
-    std::string toRead;
-    std::vector<std::pair<std::string, int>> values;
+    int toRead;
+    std::vector<int> values;
 
-    while(std::getline(file, toRead))
+    while(file >> toRead)
     {
-        if(toRead.compare("") == 0)
-        {
-            break;
-        }
-
-        else
-        {
-            std::string instruction = toRead.substr(0, 3);
-            std::string valueStr = toRead.substr(4, toRead.length() - 1);
-            int value = std::stoi(valueStr);
-            values.push_back(std::make_pair(instruction, value));
-        }
+        values.push_back(toRead);
     }
     return values;
 }
 
 void Part1()
 {
-}
+    std::vector<int> values = ReadInput();
+    std::vector<int> difference;
+    std::sort(values.begin(), values.end());
 
+    int outlet = 0;
+    int oneDiff = 0;
+    int threeDiff = 0;
+
+    for(Index i = 0; i < values.size() - 1; i++)
+    {
+        difference.push_back(values[i + 1] - values[i]); 
+    }
+
+    oneDiff = std::count(difference.begin(), difference.end(), 1) + 1;
+    threeDiff = std::count(difference.begin(), difference.end(), 3) + 1;
+
+    std::cout << "Part 1: Product = " << oneDiff * threeDiff << std::endl;
+}
 
 void Part2()
 {
+    std::vector<int> values;
+    values.push_back(0);
+
+    std::vector<int> tempValues = ReadInput();
+    values.insert(values.end(), tempValues.begin(), tempValues.end());
+
+    std::sort(values.begin(), values.end());
+
+    values.push_back(values[values.size() - 1] + 3);
+    std::vector<long> combinations (values.size());
+    combinations[0] = 1;
+
+    for(Index i = 0; i < values.size() - 1; i++)
+    {
+        //Check for out of range and if it is <= 3 jolts away from the current one
+        //If both are true, then make the total number of ways to get to here
+        //number of ways beforehand and any current value.
+        //(0), 1, 4, 7, 10, 12, 15, 16, 19, (22) 
+        //(0), 1, 4, 7, 10, 11, 12, 15, 16, 19, (22)
+        //If we are at 10, we can go to 11 OR 12, OR both.
+        //This means that both are valid paths, so we give both the number of combinations currently.
+        //======================================================================
+        //Make the index check up to +3, since every value is unique and in a sorted array, it
+        //can only be at most 3 away if it is increasing by the whole time...
+        
+        for(int j = 1; j < 4; j++)
+        {
+            if((i + j < values.size()) && (values[i + j] - values[i] <= 3))
+            {
+                combinations[i + j] += combinations[i];
+            }
+        }
+    }
+
+    long total = combinations[combinations.size() - 1];
+
+    std::cout << "Part 2: Combinations = " << total << std::endl;
 }
