@@ -52,7 +52,6 @@ void Part1()
     std::vector<std::pair<int, int>> v = ReadInput();
 
     int time = v[0].first;
-    std::vector<std::vector<int>> t;
     int smallest = -1;
     int wait = -1;
     int targetBus = -1;
