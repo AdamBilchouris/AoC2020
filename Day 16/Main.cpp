@@ -13,6 +13,8 @@ std::unordered_map<std::string, std::tuple<int, int, int, int>> fields;
 std::vector<std::string> fieldString;
 std::vector<int> myTicket;
 std::vector<std::vector<int>> nearbyTickets;
+//indices for tickets to remove in nearbyTickets
+std::vector<int> ticketsRemove;
 
 void ReadFile();
 void Part1();
@@ -134,6 +136,7 @@ void Part1()
             if(validC < 1)
             {
                 counter += currVal;
+                ticketsRemove.push_back(i);
                 break;
             }
         }
@@ -144,44 +147,6 @@ void Part1()
 
 void Part2()
 {
-    int currVal = 0;
-    int validC = 0;
-    int invalidC = 0;
-    //indices for tickets to remove in nearbyTickets
-    std::vector<int> ticketsRemove;
-
-    for(Index i = 0; i < nearbyTickets.size(); i++)
-    {
-        currVal = 0;
-
-        for(Index j = 0; j < nearbyTickets[i].size(); j++)
-        {
-            validC = 0;
-            invalidC = 0;
-            currVal = nearbyTickets[i][j];
-            //Go through the fields
-            for(auto iter = fields.begin(); iter != fields.end(); iter++)
-            {
-                auto k = iter->second;
-                if(checkRange(std::get<0>(k), std::get<1>(k), currVal) || checkRange(std::get<2>(k), std::get<3>(k), currVal))
-                {
-                    validC += 1;
-                }
-
-                else
-                {
-                    invalidC += 1;
-                }
-            }
-
-            if(validC < 1)
-            {
-                ticketsRemove.push_back(i);
-                break;
-            }
-        }
-    }
-
     std::vector<std::vector<int>> removed;
     std::copy(nearbyTickets.begin(), nearbyTickets.end(), std::back_inserter(removed));
 
@@ -196,16 +161,6 @@ void Part2()
     //field name : position in ticket (0 to n)
     //std::unordered_map<std::string, int> fieldPos;
     std::unordered_map<std::string, std::vector<int>> fieldPos;
-
-    for(Index i = 0; fieldString.size(); i++)
-    {
-        //???????????
-        //Stops a segfault, file reading is fucked somewhere
-        if(fieldString[i] == "")
-        {
-            break;
-        }
-    }
 
     //Generate all possible indices for a given field
     for(Index i = 0; i < removed.size(); i++)
@@ -262,6 +217,7 @@ void Part2()
     //indexed the same as lowValsFirst
     std::vector<int> confirmed;
 
+    //Remove duplicates
     for(int i = 0; i < lowValsFirst.size(); i++)
     {
         confirmed.push_back(fieldPos[lowValsFirst[i]][0]);
